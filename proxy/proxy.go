@@ -1,21 +1,21 @@
 package proxy
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
 
 type Server struct {
-	host   string
-	port   string
+	target string
 	router *chi.Mux
 }
 
-func NewServer(h string, p string) *Server {
+func NewServer(t string) *Server {
 	s := Server{
-		host:   h,
-		port:   p,
+		target: t,
 		router: chi.NewRouter(),
 	}
 
@@ -34,7 +34,10 @@ func (s *Server) initRoute() error {
 func (s *Server) Listen() error {
 
 	s.initRoute()
-	addr := s.host + ":" + s.port
+
+	addr := "localhost:8080"
+	port := strings.Split(addr, ":")[1]
+	fmt.Println(fmt.Sprintf("Server Listening on %s\n ", port))
 	return http.ListenAndServe(addr, s.router)
 
 }
