@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -37,12 +38,19 @@ func (s *Server) Listen() error {
 
 	addr := "localhost:8080"
 	port := strings.Split(addr, ":")[1]
-	fmt.Println(fmt.Sprintf("Server Listening on %s\n ", port))
+	fmt.Printf("Server Listening on %s\n ", port)
 	return http.ListenAndServe(addr, s.router)
 
 }
 func (s *Server) handler(res http.ResponseWriter, req *http.Request) {
 
+	body, err := ioutil.ReadAll(req.Body)
+
+	if err != nil {
+		http.Error(res, "Error handling File", http.StatusInternalServerError)
+	}
+	proxyAddr := string(body)
+	fmt.Print(proxyAddr)
 	res.Write([]byte("Testing "))
 
 }
