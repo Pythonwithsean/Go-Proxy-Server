@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -15,18 +15,17 @@ type Server struct {
 }
 
 func NewServer(t string) *Server {
-	s := Server{
+	return &Server{
 		target: t,
 		router: chi.NewRouter(),
 	}
-
-	return &s
 
 }
 
 func (s *Server) initRoute() error {
 
-	s.router.HandleFunc("/", s.handler)
+	s.router.Get("/", s.handler)
+	s.router.Post("/api/v1", s.postHandler)
 
 	return nil
 
@@ -42,15 +41,28 @@ func (s *Server) Listen() error {
 	return http.ListenAndServe(addr, s.router)
 
 }
-func (s *Server) handler(res http.ResponseWriter, req *http.Request) {
 
-	body, err := ioutil.ReadAll(req.Body)
+func (s *Server) postHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		http.Error(res, "Error handling File", http.StatusInternalServerError)
+		http.Error(w, "Could not read body ", http.StatusBadRequest)
+	}
+
+	data := string(body)
+
+	fmt.Println(data)
+}
+
+func (s *Server) handler(w http.ResponseWriter, r *http.Request) {
+
+	body, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		http.Error(w, "Error handling File", http.StatusInternalServerError)
 	}
 	proxyAddr := string(body)
 	fmt.Print(proxyAddr)
-	res.Write([]byte("Testing "))
+	w.Write([]byte("Testing "))
 
 }

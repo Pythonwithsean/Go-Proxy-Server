@@ -4,6 +4,7 @@ services:
   # Create PostgreSQL container
   # Expose default PostgreSQL port 5432
   # Mounts PostgreSQL data to local ./tmp/postgres-data
+
   postgres:
     image: postgres:latest
     container_name: postgres
